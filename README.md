@@ -7,14 +7,14 @@ A Music Agency represents several bands and artists, which perform in several ve
 
 ## Relational Model
 
-**MusicalGroups** (<u>GroupID</u>, GroupName, Genre, ContactPerson, Phone, Email)  
-**Venues** (<u>VenueID</u>, VenueName, Location, Capacity, BusinessType, ContactPhone)  
-**Performances** (<u>PerformanceID</u>, *GroupID*, *VenueID*, Date, StartTime, EndTime, Status)  
-**Payments** (<u>PaymentID</u>, *PerformanceID*, Amount, Currency, PaymentDate, PaymentMethod, IsPaid)  
-**Complaints** (<u>ComplaintID</u>, *PerformanceID*, IssuerType, Description, ResolutionStatus)  
-**EquipmentSuppliers** (<u>SupplierID</u>, SupplierName, Contact)  
-**EquipmentTypes** (<u>TypeID</u>, Name)  
-**EquipmentRentals** (<u>RentalID</u>, *SupplierID*, *PerformanceID*, *TypeID*, RentalAmount, RentalCurrency, RentalPaymentDate, RentalPaymentMethod, RentalIsPaid)
+`MusicalGroups` (**GroupID**, GroupName, Genre, ContactPerson, Phone, Email)  
+`Venues` (**VenueID**, VenueName, Location, Capacity, BusinessType, ContactPhone)  
+`Performances` (**PerformanceID**, *GroupID*, *VenueID*, Date, StartTime, EndTime, Status)  
+`Payments` (**PaymentID**, *PerformanceID*, Amount, Currency, PaymentDate, PaymentMethod, IsPaid)  
+`Complaints` (**ComplaintID, *PerformanceID***, IssuerType, Description, ResolutionStatus)  
+`EquipmentSuppliers` (**SupplierID**, SupplierName, Contact)  
+`EquipmentTypes` (**TypeID**, Name)  
+`EquipmentRentals` (**RentalID**, *SupplierID*, *PerformanceID*, *TypeID*, RentalAmount, RentalCurrency, RentalPaymentDate, RentalPaymentMethod, RentalIsPaid)
 
 ### Attribute Constraints
 - **Venues.BusinessType**: `Public` or `Private`
@@ -24,6 +24,9 @@ A Music Agency represents several bands and artists, which perform in several ve
 - **Payments.PaymentMethod**: `Cash`, `Bank Transfer` or `Card`
 - **EquipmentTypes.Name**: `Instruments`, `Lights`, `Sound`, `SceneComplements`
 - **EquipmentRentals.RentalPaymentMethod**: `Cash`, `Bank Transfer` or `Card`
+
+### Weak Entity Notation
+- `Complaints`: Composite PK = (**ComplaintID, *PerformanceID***)
 
 <!-- ### Foreign Key Constraints:
 1. *(Performances)*.*GroupID* → *(MusicalGroups)*.GroupID  
@@ -74,8 +77,8 @@ erDiagram
     }
 
     Complaints {
-        int ComplaintID PPK
-        int PerformanceID PFK
+        int ComplaintID
+        int PerformanceID FK
         string IssuerType
         string Description
         string ResolutionStatus
