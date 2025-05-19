@@ -1,23 +1,45 @@
-# 🎵 Music Performance Management System (MPMS)  
-*A database system to manage musical groups, venues, performances, payments, equipment rentals, and planned events.*  
+# 🎵 Music Agency Management System (MAMS)  
+*A database system to manage musical groups, venues, performances, payments and related expenses.*
 
 ---
+*Problem Description*
+A Music Agency represents several bands and artists, which perform in several venues. Each performance demands a payment and sometimes aditional equipment that can be rented to distinct suppliers. Also, a venue can complain about some situation provocated by a band in its performance or an artist can complain about a venue. The Music Agency wants to track all payments received and made by artists and calculate their monthly contribution to the agency.
 
-## 📊 **Database Schema (Mermaid)**  
+## Relational Model
+
+*(MusicalGroups)* (<u>GroupID</u>, GroupName, Genre, ContactPerson, Phone, Email)  
+*(Venues)* (<u>VenueID</u>, VenueName, Location, Capacity, BusinessType, ContactPhone)  
+*(Performances)* (<u>PerformanceID</u>, *GroupID*, *VenueID*, Date, StartTime, EndTime, Status)  
+*(Payments)* (<u>PaymentID</u>, *PerformanceID*, Amount, Currency, PaymentDate, PaymentMethod, IsPaid)  
+*(Complaints)* (<u>ComplaintID</u>, *PerformanceID*, IssuerType, Description, ResolutionStatus)  
+*(EquipmentSuppliers)* (<u>SupplierID</u>, SupplierName, Contact)  
+*(EquipmentTypes)* (<u>TypeID</u>, Name)  
+*(EquipmentRentals)* (<u>RentalID</u>, *SupplierID*, *PerformanceID*, *TypeID*, RentalAmount, RentalCurrency, RentalPaymentDate, RentalPaymentMethod, RentalIsPaid)
+
+### Foreign Key Constraints:
+1. *(Performances)*.*GroupID* → *(MusicalGroups)*.GroupID  
+2. *(Performances)*.*VenueID* → *(Venues)*.VenueID  
+3. *(Payments)*.*PerformanceID* → *(Performances)*.PerformanceID  
+4. *(Complaints)*.*PerformanceID* → *(Performances)*.PerformanceID  
+5. *(EquipmentRentals)*.*SupplierID* → *(EquipmentSuppliers)*.SupplierID  
+6. *(EquipmentRentals)*.*PerformanceID* → *(Performances)*.PerformanceID  
+7. *(EquipmentRentals)*.*TypeID* → *(EquipmentTypes)*.TypeID
+
+## 📊 **Database Schema (with Mermaid)**
 ```mermaid
 erDiagram
     MusicalGroups ||--o{ Performances : "performs"
     MusicalGroups ||--o{ EquipmentRentals : "rents"
-    MusicalGroups ||--o{ PlannedEvents : "plans"
     Venues ||--o{ Performances : "hosts"
     Performances ||--|| Payments : "receives"
+    Performances ||--o{ Complaints : "triggers"
     EquipmentSuppliers ||--o{ EquipmentRentals : "provides"
+    EquipmentTypes ||--o{ EquipmentRentals : "categorizes"
 
     MusicalGroups {
         int GroupID PK
         string GroupName
         string Genre
-        int FormationYear
         string ContactPerson
         string Phone
         string Email
@@ -28,9 +50,8 @@ erDiagram
         string VenueName
         string Location
         int Capacity
-        string Type
+        string BusinessType ("Public"|"Private")
         string ContactPhone
-        boolean IsPrivate
     }
 
     Performances {
@@ -40,8 +61,15 @@ erDiagram
         date Date
         time StartTime
         time EndTime
-        int ExpectedAudience
-        string Status
+        string Status ("Scheduled"|"Completed"|"Cancelled")
+    }
+
+    Complaints {
+        int ComplaintID PPK
+        int PerformanceID PFK
+        string IssuerType ("Venue"|"Group")
+        string Description
+        string ResolutionStatus ("Pending"|"Resolved"|"Rejected")
     }
 
     Payments {
@@ -50,33 +78,29 @@ erDiagram
         decimal Amount
         string Currency
         date PaymentDate
-        string PaymentMethod
+        string PaymentMethod ("Cash"|"Bank Transfer"|"Card")
         boolean IsPaid
     }
 
     EquipmentSuppliers {
         int SupplierID PK
         string SupplierName
-        string Specialty
         string Contact
+    }
+
+    EquipmentTypes {
+        int TypeID PK
+        string Name ("Instruments"|"Lights"|"Sound"|"SceneComplements")
     }
 
     EquipmentRentals {
         int RentalID PK
         int SupplierID FK
-        int GroupID FK
-        string EquipmentType
-        date RentalStartDate
-        date RentalEndDate
-        decimal Cost
-        boolean IsReturned
-    }
-
-    PlannedEvents {
-        int EventID PK
-        int GroupID FK
-        string EventName
-        date PlannedDate
-        decimal EstimatedBudget
-        string Status
+        int PerformanceID FK
+        int TypeID FK
+        decimal RentalAmount
+        string RentalCurrency
+        date RentalPaymentDate
+        string RentalPaymentMethod ("Cash"|"Bank Transfer"|"Card")
+        boolean RentalIsPaid
     }
